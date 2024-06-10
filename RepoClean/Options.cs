@@ -9,8 +9,8 @@ namespace RepoClean
 {
     public class Options
     {
-        [Option('t', "target", Required = false, HelpText = "Target path to clean", Default = "./")]
-        public string TargetPath { get; set; } = "./";
+        [Option('t', "target", Required = false, HelpText = "Target path to clean", Default = "")]
+        public string TargetPath { get; set; } = "";
         [Option('r', "recursive", Required = false, HelpText = "Clean from folders and all subfolders", Default = false)]
         public bool IsRecursive { get; set; } = false;
         [Option('f' ,"forced", Required = false, HelpText = "Do not ask before deleting", Default = false)]

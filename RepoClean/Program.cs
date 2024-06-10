@@ -58,7 +58,8 @@ namespace RepoClean
                     WriteLineColor("Skipped", ConsoleColor.Yellow);
             }
 
-            WriteLineColor("Repositories successfully cleaned!", ConsoleColor.Green);
+            if (!opts.IsShow)
+                WriteLineColor("Repositories successfully cleaned!", ConsoleColor.Green);
         }
 
         public static bool Confirm()
@@ -75,10 +76,32 @@ namespace RepoClean
         private static List<string> SearchDirectories(string target, SearchOption option)
         {
             var folders = new HashSet<string>();
-            folders.AddRange(Directory.GetDirectories(target, "bin", option));
-            folders.AddRange(Directory.GetDirectories(target, "obj", option));
-            folders.AddRange(Directory.GetDirectories(target, ".vs", option));
-            return folders.ToList();
+            var projs = Directory.GetFiles(target, "*.csproj", option);
+            foreach(var proj in projs)
+            {
+                var dir = new DirectoryInfo(proj).Parent;
+                if (dir == null)
+                    continue;
+                if (Directory.Exists(Path.Combine(dir.FullName, "bin")))
+                    folders.Add(Path.Combine(dir.FullName, "bin"));
+                if (Directory.Exists(Path.Combine(dir.FullName, "obj")))
+                    folders.Add(Path.Combine(dir.FullName, "obj"));
+            }
+
+            var sols = Directory.GetFiles(target, "*.sln", option);
+            foreach (var sol in sols)
+            {
+                var dir = new DirectoryInfo(sol).Parent;
+                if (dir == null)
+                    continue;
+                if (Directory.Exists(Path.Combine(dir.FullName, ".vs")))
+                    folders.Add(Path.Combine(dir.FullName, ".vs"));
+            }
+            var list = new List<string>();
+            foreach(var folder in folders)
+                if (!folders.Any(x => folder.StartsWith(x) && folder != x))
+                    list.Add(folder);
+            return list;
         }
 
         private static void HandleParseError(IEnumerable<Error> errs)

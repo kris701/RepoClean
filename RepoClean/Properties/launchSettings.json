@@ -2,7 +2,7 @@
   "profiles": {
     "RepoClean": {
       "commandName": "Project",
-      "commandLineArgs": "-t D:\\kris7\\OneDrive\\Programming\\C#\\Unfinished\\ -r -f"
+      "commandLineArgs": "-t D:\\kris7\\OneDrive\\Programming\\_GitHub_ -r -s"
     }
   }
 }
