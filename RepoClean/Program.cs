@@ -77,6 +77,7 @@ namespace RepoClean
             var folders = new HashSet<string>();
             folders.AddRange(Directory.GetDirectories(target, "bin", option));
             folders.AddRange(Directory.GetDirectories(target, "obj", option));
+            folders.AddRange(Directory.GetDirectories(target, ".vs", option));
             return folders.ToList();
         }
 
@@ -85,7 +86,7 @@ namespace RepoClean
             var sentenceBuilder = SentenceBuilder.Create();
             foreach (var error in errs)
                 if (error is not HelpRequestedError)
-                    Console.WriteLine(sentenceBuilder.FormatError(error));
+                    WriteLineColor(sentenceBuilder.FormatError(error), ConsoleColor.Red);
         }
 
         private static void DisplayHelp<T>(ParserResult<T> result, IEnumerable<Error> errs)
@@ -95,7 +96,7 @@ namespace RepoClean
                 h.AddEnumValuesToHelpText = true;
                 return h;
             }, e => e, verbsIndex: true);
-            Console.WriteLine(helpText);
+            WriteLineColor(helpText, ConsoleColor.Red);
             HandleParseError(errs);
         }
 
