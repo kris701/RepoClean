@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "RepoClean": {
+      "commandName": "Project",
+      "commandLineArgs": "-t D:\\kris7\\OneDrive\\Programming\\C#\\Unfinished\\ -r -f"
+    }
+  }
+}
