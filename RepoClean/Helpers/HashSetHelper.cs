@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace RepoClean.Helpers
+﻿namespace RepoClean.Helpers
 {
     public static class HashSetHelper
     {
@@ -13,5 +7,5 @@ namespace RepoClean.Helpers
             foreach (var item in other)
                 set.Add(item);
         }
-    }    
+    }
 }

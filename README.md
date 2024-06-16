@@ -17,12 +17,13 @@
 This is a small project to clean bin, obj and .vs folders form a folder or all subfolders.
 It is a dotnet tool, and have the following arguments:
 ```
-repoclean [-t|--target <PATH>] [-r|--recursive] [-f|--force] [-s|--show]
+repoclean [-t|--target <PATH>] [-r|--recursive] [-f|--force] [-s|--show] [-e|--extra]
 ```
 * `-t|--target` is an argument to the path you want to clean. By default this is the folder the tool is run from.
 * `-r|--recursive` clean from the folder and all subfolders.
 * `-f|--force` dont ask if they should be removed, just remove them.
 * `-s|--show` only show what would be deleted, but dont delete or ask for anything.
+* `-e|--extra` Extra patterns to search for too.
 
 This can be found as a package on the [NuGet Package Manager](https://www.nuget.org/packages/RepoClean/) or be installed by the command:
 ```

@@ -1,12 +1,17 @@
 ﻿using CommandLine;
 using CommandLine.Text;
-using RepoClean.Helpers;
-using System;
+using RepoClean.Models;
 
 namespace RepoClean
 {
     internal class Program
     {
+        public static List<FolderTarget> _targetFolders = new List<FolderTarget>()
+        {
+            new FolderTarget("*.csproj", new List<string>(){ "bin", "obj" }),
+            new FolderTarget("*.sln", new List<string>(){ ".vs" }),
+        };
+
         static void Main(string[] args)
         {
             var parser = new Parser(with => with.HelpWriter = null);
@@ -23,19 +28,20 @@ namespace RepoClean
                 Console.WriteLine($"Target path not found: {opts.TargetPath}");
                 return;
             }
+            _targetFolders.Add(new FolderTarget("", opts.ExtraPatterns.ToList()));
             var option = SearchOption.TopDirectoryOnly;
             if (opts.IsRecursive)
                 option = SearchOption.AllDirectories;
 
             WriteColor("Finding directories... ", ConsoleColor.Blue);
-            var directories = SearchDirectories(opts.TargetPath, option);
+            var directories = SearchDirectories(opts.TargetPath, _targetFolders, option);
             WriteLineColor($"{directories.Count} found!", ConsoleColor.Green);
             if (directories.Count > 0)
                 WriteLineColor("To delete:", ConsoleColor.Blue);
 
             foreach (var directory in directories)
             {
-                WriteColor($"\t{directory} ", ConsoleColor.DarkGray);
+                WriteColor($"\t{directory.Replace(opts.TargetPath.Replace("/", "\\"), "")} ", ConsoleColor.DarkGray);
                 if (opts.IsShow)
                 {
                     WriteLineColor("", ConsoleColor.DarkGray);
@@ -43,23 +49,32 @@ namespace RepoClean
                 }
                 if (opts.IsForced)
                 {
-                    Directory.Delete(directory, true);
-                    WriteLineColor("Removed", ConsoleColor.Green);
+                    DeleteDirectory(directory);
                     continue;
                 }
                 WriteColor($"Remove? [y/n] ", ConsoleColor.Yellow);
                 var answer = Confirm();
                 if (answer)
-                {
-                    Directory.Delete(directory, true);
-                    WriteLineColor("Removed", ConsoleColor.Green);
-                }
+                    DeleteDirectory(directory);
                 else
                     WriteLineColor("Skipped", ConsoleColor.Yellow);
             }
 
             if (!opts.IsShow)
                 WriteLineColor("Repositories successfully cleaned!", ConsoleColor.Green);
+        }
+
+        private static void DeleteDirectory(string dir)
+        {
+            try
+            {
+                Directory.Delete(dir, true);
+                WriteLineColor("Removed", ConsoleColor.Green);
+            }
+            catch (Exception e)
+            {
+                WriteLineColor($"Error: {e.Message}", ConsoleColor.Red);
+            }
         }
 
         public static bool Confirm()
@@ -73,32 +88,33 @@ namespace RepoClean
             return (response == ConsoleKey.Y);
         }
 
-        private static List<string> SearchDirectories(string target, SearchOption option)
+        private static List<string> SearchDirectories(string from, List<FolderTarget> targets, SearchOption option)
         {
             var folders = new HashSet<string>();
-            var projs = Directory.GetFiles(target, "*.csproj", option);
-            foreach(var proj in projs)
+
+            foreach (var target in targets)
             {
-                var dir = new DirectoryInfo(proj).Parent;
-                if (dir == null)
-                    continue;
-                if (Directory.Exists(Path.Combine(dir.FullName, "bin")))
-                    folders.Add(Path.Combine(dir.FullName, "bin"));
-                if (Directory.Exists(Path.Combine(dir.FullName, "obj")))
-                    folders.Add(Path.Combine(dir.FullName, "obj"));
+                if (target.TargetParentFile != "")
+                {
+                    var projs = Directory.GetFiles(from, target.TargetParentFile, option);
+                    foreach (var proj in projs)
+                    {
+                        var dir = new DirectoryInfo(proj).Parent;
+                        if (dir == null)
+                            continue;
+                        foreach (var pattern in target.TargetPatterns)
+                            if (Directory.Exists(Path.Combine(dir.FullName, pattern)))
+                                folders.Add(Path.Combine(dir.FullName, pattern));
+                    }
+                }
+                else
+                    foreach (var pattern in target.TargetPatterns)
+                        foreach (var folder in Directory.GetDirectories(from, pattern, option))
+                            folders.Add(folder.Replace("/", "\\"));
             }
 
-            var sols = Directory.GetFiles(target, "*.sln", option);
-            foreach (var sol in sols)
-            {
-                var dir = new DirectoryInfo(sol).Parent;
-                if (dir == null)
-                    continue;
-                if (Directory.Exists(Path.Combine(dir.FullName, ".vs")))
-                    folders.Add(Path.Combine(dir.FullName, ".vs"));
-            }
             var list = new List<string>();
-            foreach(var folder in folders)
+            foreach (var folder in folders)
                 if (!folders.Any(x => folder.StartsWith(x) && folder != x))
                     list.Add(folder);
             return list;
