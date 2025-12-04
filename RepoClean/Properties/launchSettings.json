@@ -2,7 +2,7 @@
   "profiles": {
     "RepoClean": {
       "commandName": "Project",
-      "commandLineArgs": "-t D:\\kris7\\OneDrive\\Programming\\_GitHub_ -r -s -e temp tmp"
+      "commandLineArgs": "-t C:\\Users\\kris7\\OneDrive\\Programming\\_GitHub_\\AutoConst -r -f"
     }
   }
 }
