@@ -10,6 +10,10 @@ jobs:
     runs-on: ubuntu-latest
     name: Run Tests
     steps:
+      - uses: actions/setup-dotnet@v4
+        with:
+            dotnet-version: '10.0'
+
       - name: Checkout repository
         uses: actions/checkout@master
 
@@ -26,6 +30,10 @@ jobs:
     runs-on: ubuntu-latest
     name: Update NuGet 
     steps:
+      - uses: actions/setup-dotnet@v4
+        with:
+            dotnet-version: '10.0'
+
       - name: Checkout repository
         uses: actions/checkout@v3
           
